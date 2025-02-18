@@ -1,0 +1,13 @@
+{
+  "minVersion": "0.8",
+  "required": true,
+  "package": "com.robertx22.the_harvest.mixins",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "the_harvest.refmap.json",
+  "mixins": [
+    
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
