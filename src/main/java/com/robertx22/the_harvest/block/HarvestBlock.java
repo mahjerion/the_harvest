@@ -4,6 +4,7 @@ import com.robertx22.library_of_exile.components.PlayerDataCapability;
 import com.robertx22.library_of_exile.dimension.MapDimensions;
 import com.robertx22.library_of_exile.utils.PlayerUtil;
 import com.robertx22.library_of_exile.utils.SoundUtils;
+import com.robertx22.library_of_exile.utils.TeleportUtils;
 import com.robertx22.the_harvest.block_entity.HarvestBE;
 import com.robertx22.the_harvest.item.HarvestItemMapData;
 import com.robertx22.the_harvest.item.HarvestItemNbt;
@@ -61,7 +62,7 @@ public class HarvestBlock extends BaseEntityBlock {
 
         var count = map.getOrSetStartPos(p.level(), stack);
         var start = HarvestMain.HARVEST_MAP_STRUCTURE.getStartFromCounter(count.x, count.z);
-        var pos = HarvestMain.HARVEST_MAP_STRUCTURE.getSpawnTeleportPos(start.getMiddleBlockPosition(5));
+        var pos = TeleportUtils.getSpawnTeleportPos(HarvestMain.HARVEST_MAP_STRUCTURE, start.getMiddleBlockPosition(5));
 
         var pdata = PlayerDataCapability.get(p);
 
@@ -89,7 +90,7 @@ public class HarvestBlock extends BaseEntityBlock {
     public static void joinCurrentMap(Player p, HarvestBE be) {
 
         var start = HarvestMain.HARVEST_MAP_STRUCTURE.getStartFromCounter(be.x, be.z);
-        var pos = HarvestMain.HARVEST_MAP_STRUCTURE.getSpawnTeleportPos(start.getMiddleBlockPosition(5));
+        var pos = TeleportUtils.getSpawnTeleportPos(HarvestMain.HARVEST_MAP_STRUCTURE, start.getMiddleBlockPosition(5));
         var pdata = PlayerDataCapability.get(p);
         pdata.mapTeleports.entranceTeleportLogic(p, HarvestMain.DIMENSION_KEY, pos);
     }

@@ -11,14 +11,14 @@ import com.robertx22.library_of_exile.tags.ExileTagRequirement;
 public class HarvestArena implements JsonExileRegistry<HarvestArena>, IAutoGson<HarvestArena> {
     public static HarvestArena SERIALIZER = new HarvestArena(new SimplePrebuiltMapData(1, ""), 0, "empty");
 
-    public SimplePrebuiltMapData simple_prebuilt_map = null;
+    public SimplePrebuiltMapData structure = null;
 
     public int weight = 1000;
     public String id = "";
     public ExileTagRequirement<MobList> mob_list_tag_check = new ExileTagRequirement().createBuilder().mustHave(MobListTags.HARVEST).build();
 
-    public HarvestArena(SimplePrebuiltMapData simple_prebuilt_map, int weight, String id) {
-        this.simple_prebuilt_map = simple_prebuilt_map;
+    public HarvestArena(SimplePrebuiltMapData structure, int weight, String id) {
+        this.structure = structure;
         this.weight = weight;
         this.id = id;
     }
