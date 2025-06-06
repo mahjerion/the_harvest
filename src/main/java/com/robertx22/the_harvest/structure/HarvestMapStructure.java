@@ -19,7 +19,7 @@ public class HarvestMapStructure extends SimplePrebuiltMapStructure {
 
     @Override
     public SimplePrebuiltMapData getMap(ChunkPos start) {
-        return getArena(start).structure;
+        return getArena(start).structure_data;
     }
 
     public HarvestArena getArena(ChunkPos start) {
