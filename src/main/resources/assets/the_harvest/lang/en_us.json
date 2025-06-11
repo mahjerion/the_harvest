@@ -11,7 +11,7 @@
 	"library_of_exile.relic_stat.bonus_harvest_chance": "%1$s chance to contain 1 more Harvests",
 	"library_of_exile.relic_stat.double_harvest_chance": "%1$s chance to contain 2x Harvests",
 	"library_of_exile.relic_stat.harvest_content": "Your maps are %1$s more likely to contain Harvest Content",
-	"library_of_exile.relic_stat.mobs_spawned": "%1$s More Mob Spawns",
+	"library_of_exile.relic_stat.mobs_spawned": "%1$s More Mob Spawns inside the Harvest",
 	"library_of_exile.relic_type.the_harvest": "Harvest Relic",
 	"the_harvest.words.creative_tab": "The Harvest",
 	"the_harvest.words.harvest_end": "The Vines appear to shrink, for now...",
