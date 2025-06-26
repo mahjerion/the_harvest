@@ -29,7 +29,6 @@ public class HarvestOrbs extends ExileKeyHolder<ExileCurrency> {
 
      */
 
-
     @Override
     public void loadClass() {
 
