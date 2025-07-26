@@ -21,7 +21,7 @@ public class HarvestCommands {
                 x.addLiteral("wipe_world_data", PermWrapper.OP);
 
                 x.action(e -> {
-                    var world = e.getSource().getLevel();
+                    var world = e.getSource().getServer().overworld();
                     HarvestMapCap.get(world).data = new HarvestWorldData();
                     e.getSource().getPlayer().sendSystemMessage(Component.literal(
                             "Harvest world data wiped, you should only do this when wiping the dimension's folder too! The dimension folder is in: savefolder\\dimensions\\the_harvest").withStyle(ChatFormatting.GREEN));

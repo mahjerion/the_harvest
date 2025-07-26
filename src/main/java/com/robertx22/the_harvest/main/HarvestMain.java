@@ -27,12 +27,14 @@ import com.robertx22.the_harvest.item.HarvestMapItem;
 import com.robertx22.the_harvest.structure.HarvestMapCap;
 import com.robertx22.the_harvest.structure.HarvestMapData;
 import com.robertx22.the_harvest.structure.HarvestMapStructure;
+import com.robertx22.the_harvest.structure.HarvestWorldData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.damagesource.DamageSource;
@@ -86,7 +88,13 @@ public class HarvestMain {
     public static HarvestMapStructure HARVEST_MAP_STRUCTURE = new HarvestMapStructure();
     public static MapDimensionInfo MAP = new MapDimensionInfo(
             DIMENSION_KEY, HARVEST_MAP_STRUCTURE, MapContentType.SIDE_CONTENT, Arrays.asList(), new HarvestMobValidator(),
-            new MapDimensionConfigDefaults(3, 2));
+            new MapDimensionConfigDefaults(3, 2)) {
+        @Override
+        public void clearMapDataOnFolderWipe(MinecraftServer minecraftServer) {
+            HarvestMapCap.get(minecraftServer.overworld()).data = new HarvestWorldData();
+
+        }
+    };
 
 
     public static void debugMsg(Player p, String s) {

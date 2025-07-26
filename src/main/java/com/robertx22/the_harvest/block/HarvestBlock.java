@@ -55,7 +55,7 @@ public class HarvestBlock extends BaseEntityBlock {
         return all;
     }
 
-   
+
     public static void startNewMap(Player p, ItemStack stack, HarvestBE be) {
 
         HarvestItemMapData map = HarvestItemNbt.HARVEST_MAP.loadFrom(stack);
@@ -76,6 +76,8 @@ public class HarvestBlock extends BaseEntityBlock {
 
         be.x = count.x;
         be.z = count.z;
+
+        be.currentWorldUUID = HarvestMapCap.get(p.level()).data.data.uuid;
 
         be.setChanged();
 
