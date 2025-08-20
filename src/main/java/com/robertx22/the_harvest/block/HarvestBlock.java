@@ -2,8 +2,6 @@ package com.robertx22.the_harvest.block;
 
 import com.robertx22.library_of_exile.components.PlayerDataCapability;
 import com.robertx22.library_of_exile.dimension.MapDimensions;
-import com.robertx22.library_of_exile.utils.PlayerUtil;
-import com.robertx22.library_of_exile.utils.SoundUtils;
 import com.robertx22.library_of_exile.utils.TeleportUtils;
 import com.robertx22.the_harvest.block_entity.HarvestBE;
 import com.robertx22.the_harvest.item.HarvestItemMapData;
@@ -16,7 +14,6 @@ import com.robertx22.the_harvest.structure.HarvestMapCap;
 import com.robertx22.the_harvest.structure.HarvestMapData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -107,6 +104,11 @@ public class HarvestBlock extends BaseEntityBlock {
             if (be instanceof HarvestBE obe) {
                 ItemStack stack = p.getMainHandItem();
 
+                if (MapDimensions.isMap(world)) {
+                    joinMapSpecificHarvest(p, obe);
+                    return InteractionResult.SUCCESS;
+                }
+
                 if (HarvestItemNbt.HARVEST_MAP.has(stack)) {
                     HarvestItemMapData map = HarvestItemNbt.HARVEST_MAP.loadFrom(stack);
 
@@ -117,25 +119,8 @@ public class HarvestBlock extends BaseEntityBlock {
                     //HarvestMain.debugMsg(p, "Trying to start new map");
                     startNewMap(p, stack, obe);
                     //HarvestMain.debugMsg(p, "Map started");
-                } else {
-                    if (obe.isActivated()) {
-                        // HarvestMain.debugMsg(p, "Trying to join existing map");
-                        joinCurrentMap(p, obe);
-                    } else {
-                        // only obelisks found in maps give maps
-                        if (MapDimensions.isMap(world)) {
-                            if (!obe.gaveMap) {
-                                obe.setGaveMap();
-                                var map = HarvestMapItem.blankMap(HarvestEntries.HARVEST_MAP_ITEM.get().getDefaultInstance(), true);
-                                PlayerUtil.giveItem(map, p);
-                                SoundUtils.playSound(p, SoundEvents.ITEM_PICKUP);
-                                p.sendSystemMessage(HarvestWords.NEW_MAP_GIVEN.get().withStyle(ChatFormatting.LIGHT_PURPLE));
-                            } else {
-                                //HarvestMain.debugMsg(p, "Obelisk is not activated and already gave a map");
-                            }
-                        }
-                    }
-
+                } else if (obe.isActivated()) {
+                    joinCurrentMap(p, obe);
                 }
             } else {
                 HarvestMain.debugMsg(p, "Missing Block entity");
@@ -143,6 +128,24 @@ public class HarvestBlock extends BaseEntityBlock {
         }
 
         return InteractionResult.SUCCESS;
+    }
+
+    private static void joinMapSpecificHarvest(Player p, HarvestBE obe) {
+        if (!obe.gaveMap) {
+            obe.setGaveMap();
+            var map = HarvestMapItem.blankMap(HarvestEntries.HARVEST_MAP_ITEM.get().getDefaultInstance(), true);
+            startNewMap(p, map, obe);
+            return;
+        }
+
+        HarvestMain.debugMsg(p, "Harvest already initialized");
+
+        if (!obe.isActivated()) {
+            HarvestMain.debugMsg(p, "Harvest is not activated");
+            return;
+        }
+
+        joinCurrentMap(p, obe);
     }
 
 
