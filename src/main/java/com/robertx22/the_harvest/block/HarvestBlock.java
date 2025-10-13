@@ -97,55 +97,55 @@ public class HarvestBlock extends BaseEntityBlock {
 
     @Override
     public InteractionResult use(BlockState pState, Level world, BlockPos pPos, Player p, InteractionHand pHand, BlockHitResult pHit) {
+        if (world.isClientSide) {
+            return InteractionResult.SUCCESS;
+        }
 
-        if (!world.isClientSide) {
-            var be = world.getBlockEntity(pPos);
+        var be = world.getBlockEntity(pPos);
 
-            if (be instanceof HarvestBE obe) {
-                ItemStack stack = p.getMainHandItem();
+        var obe = be instanceof HarvestBE ? (HarvestBE) be : null;
+        if (obe == null) {
+            HarvestMain.debugMsg(p, "Missing Block entity");
+            return InteractionResult.SUCCESS;
+        }
 
-                if (MapDimensions.isMap(world)) {
-                    joinMapSpecificHarvest(p, obe);
-                    return InteractionResult.SUCCESS;
-                }
+        boolean isMapWorld = MapDimensions.isMap(world);
+        ItemStack stack = p.getMainHandItem();
+        if (HarvestItemNbt.HARVEST_MAP.has(stack)) {
+            HarvestItemMapData map = HarvestItemNbt.HARVEST_MAP.loadFrom(stack);
 
-                if (HarvestItemNbt.HARVEST_MAP.has(stack)) {
-                    HarvestItemMapData map = HarvestItemNbt.HARVEST_MAP.loadFrom(stack);
-
-                    if (map.relic && !MapDimensions.isMap(world)) {
-                        p.sendSystemMessage(HarvestWords.RELIC_MAPS_ONLY.get().withStyle(ChatFormatting.RED));
-                        return InteractionResult.SUCCESS;
-                    }
-                    //HarvestMain.debugMsg(p, "Trying to start new map");
-                    startNewMap(p, stack, obe);
-                    //HarvestMain.debugMsg(p, "Map started");
-                } else if (obe.isActivated()) {
-                    joinCurrentMap(p, obe);
-                }
-            } else {
-                HarvestMain.debugMsg(p, "Missing Block entity");
+            if (!map.relic && isMapWorld) {
+                p.sendSystemMessage(HarvestWords.RELIC_MAPS_ONLY.get().withStyle(ChatFormatting.RED));
+                return InteractionResult.SUCCESS;
             }
+
+            //HarvestMain.debugMsg(p, "Trying to start new map");
+            startNewMap(p, stack, obe);
+            //HarvestMain.debugMsg(p, "Map started");
+            return InteractionResult.SUCCESS;
+        }
+
+        if (obe.isActivated()) {
+            joinCurrentMap(p, obe);
+            return InteractionResult.SUCCESS;
+        }
+
+        if (isMapWorld) {
+            initMapSpecificHarvest(p, obe);
+            return InteractionResult.SUCCESS;
         }
 
         return InteractionResult.SUCCESS;
     }
 
-    private static void joinMapSpecificHarvest(Player p, HarvestBE obe) {
-        if (!obe.gaveMap) {
-            obe.setGaveMap();
-            var map = HarvestMapItem.blankMap(HarvestEntries.HARVEST_MAP_ITEM.get().getDefaultInstance(), true);
-            startNewMap(p, map, obe);
+    private static void initMapSpecificHarvest(Player p, HarvestBE obe) {
+        if (obe.gaveMap) {
             return;
         }
 
-        HarvestMain.debugMsg(p, "Harvest already initialized");
-
-        if (!obe.isActivated()) {
-            HarvestMain.debugMsg(p, "Harvest is not activated");
-            return;
-        }
-
-        joinCurrentMap(p, obe);
+        obe.setGaveMap();
+        var map = HarvestMapItem.blankMap(HarvestEntries.HARVEST_MAP_ITEM.get().getDefaultInstance(), true);
+        startNewMap(p, map, obe);
     }
 
 
