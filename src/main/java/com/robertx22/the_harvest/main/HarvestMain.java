@@ -19,6 +19,8 @@ import com.robertx22.library_of_exile.registry.register_info.ModRequiredRegister
 import com.robertx22.library_of_exile.registry.util.ExileRegistryUtil;
 import com.robertx22.library_of_exile.unidentified.IdentifiableItems;
 import com.robertx22.library_of_exile.utils.RandomUtils;
+import com.robertx22.the_harvest.api.GetHarvestLootBonusEvent;
+import com.robertx22.the_harvest.api.HarvestExileEvents;
 import com.robertx22.the_harvest.capability.HarvestEntityCap;
 import com.robertx22.the_harvest.configs.HarvestConfig;
 import com.robertx22.the_harvest.database.HarvestDatabase;
@@ -174,6 +176,7 @@ public class HarvestMain {
 
 
         HarvestCommands.init();
+        HarvestExileEvents.init();
 
         ExileEvents.ON_CHEST_LOOTED.register(new EventConsumer<ExileEvents.OnChestLooted>() {
             @Override
@@ -219,6 +222,12 @@ public class HarvestMain {
                 if (HarvestEntityCap.get(event.getEntity()).data.isHarvestSpawn) {
 
                     float chance = HarvestConfig.get().LOOT_TABLE_CHANCE_PER_MOB.get().floatValue();
+                    // Atlas "Harvest Extra Drops" - player-stat bonus to the per-mob loot-table trigger chance
+                    if (event.getSource().getEntity() instanceof Player p) {
+                        float bonus = HarvestExileEvents.GET_HARVEST_LOOT_BONUS.callEvents(
+                                new GetHarvestLootBonusEvent(p)).bonusPercent;
+                        chance *= 1F + bonus / 100F;
+                    }
                     if (RandomUtils.roll(chance)) {
                         dropFromLootTable(event.getEntity(), HarvestLootTables.LOOT, event.getSource());
                     }
