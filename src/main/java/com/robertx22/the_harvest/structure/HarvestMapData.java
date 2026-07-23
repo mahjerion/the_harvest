@@ -2,6 +2,8 @@ package com.robertx22.the_harvest.structure;
 
 import com.robertx22.library_of_exile.components.LibMapCap;
 import com.robertx22.library_of_exile.utils.RandomUtils;
+import com.robertx22.the_harvest.api.HarvestCompletedEvent;
+import com.robertx22.the_harvest.api.HarvestExileEvents;
 import com.robertx22.the_harvest.capability.HarvestEntityCap;
 import com.robertx22.the_harvest.configs.HarvestConfig;
 import com.robertx22.the_harvest.database.holders.HarvestRelicStats;
@@ -66,9 +68,12 @@ public class HarvestMapData {
                 ticksLeft -= 20;
 
                 if (ticksLeft < 0) {
-                    for (Player p : HarvestMain.HARVEST_MAP_STRUCTURE.getAllPlayersInMap(world, pos)) {
+                    List<Player> players = HarvestMain.HARVEST_MAP_STRUCTURE.getAllPlayersInMap(world, pos);
+                    for (Player p : players) {
                         p.sendSystemMessage(HarvestWords.HARVEST_END.get().withStyle(ChatFormatting.GREEN));
                     }
+                    // Atlas "Bountiful Aftermath" - only fires this one tick, when the timer crosses to 0
+                    HarvestExileEvents.HARVEST_COMPLETED.callEvents(new HarvestCompletedEvent(players));
                 } else {
                     for (Player p : HarvestMain.HARVEST_MAP_STRUCTURE.getAllPlayersInMap(world, pos)) {
                         int secleft = (ticksLeft) / 20;
