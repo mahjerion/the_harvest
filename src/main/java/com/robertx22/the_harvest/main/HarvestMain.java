@@ -10,6 +10,7 @@ import com.robertx22.library_of_exile.dimension.MapChunkGenEvent;
 import com.robertx22.library_of_exile.dimension.MapContentType;
 import com.robertx22.library_of_exile.dimension.MapDimensionInfo;
 import com.robertx22.library_of_exile.dimension.MapDimensions;
+import com.robertx22.library_of_exile.dimension.worlddata.MapStructureCounter;
 import com.robertx22.library_of_exile.events.base.EventConsumer;
 import com.robertx22.library_of_exile.events.base.ExileEvents;
 import com.robertx22.library_of_exile.main.ApiForgeEvents;
@@ -93,8 +94,17 @@ public class HarvestMain {
             new MapDimensionConfigDefaults(3, 2)) {
         @Override
         public void clearMapDataOnFolderWipe(MinecraftServer minecraftServer) {
-            HarvestMapCap.get(minecraftServer.overworld()).data = new HarvestWorldData();
+            var cap = HarvestMapCap.get(minecraftServer.overworld());
+            // the counter outlives the data it indexes - resetting it here would hand the coordinates of
+            // instances whose chunks are still on disk to the next player, leftover mobs and all.
+            var counter = cap.data.counter;
+            cap.data = new HarvestWorldData();
+            cap.data.counter = counter;
+        }
 
+        @Override
+        public void resetInstanceCounter(MinecraftServer minecraftServer) {
+            HarvestMapCap.get(minecraftServer.overworld()).data.counter = new MapStructureCounter();
         }
     };
 

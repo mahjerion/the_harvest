@@ -1,34 +1,14 @@
 package com.robertx22.the_harvest.main;
 
-import com.robertx22.library_of_exile.command_wrapper.CommandBuilder;
-import com.robertx22.library_of_exile.command_wrapper.PermWrapper;
-import com.robertx22.library_of_exile.main.ApiForgeEvents;
-import com.robertx22.the_harvest.structure.HarvestMapCap;
-import com.robertx22.the_harvest.structure.HarvestWorldData;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraftforge.event.RegisterCommandsEvent;
-
 public class HarvestCommands {
 
-
+    // "/the_harvest wipe_world_data" used to be registered here, and only here - dungeon_realm and
+    // ancient_obelisks never had one, so anyone wiping all three on a restart timer was really only
+    // wiping this league. It also replaced HarvestWorldData outright, which reset the instance counter
+    // while leaving the map connections and map levels that counter's coordinates point at, and it
+    // reported through getSource().getPlayer(), which is null (and so threw) when run from the console.
+    // The library now registers the command for every map dimension - see MapDimensionConfig.register.
     public static void init() {
-        ApiForgeEvents.registerForgeEvent(RegisterCommandsEvent.class, event -> {
-            var dis = event.getDispatcher();
-
-            CommandBuilder.of(HarvestMain.MODID, dis, x -> {
-
-                x.addLiteral("wipe_world_data", PermWrapper.OP);
-
-                x.action(e -> {
-                    var world = e.getSource().getServer().overworld();
-                    HarvestMapCap.get(world).data = new HarvestWorldData();
-                    e.getSource().getPlayer().sendSystemMessage(Component.literal(
-                            "Harvest world data wiped, you should only do this when wiping the dimension's folder too! The dimension folder is in: savefolder\\dimensions\\the_harvest").withStyle(ChatFormatting.GREEN));
-                });
-
-            }, "");
-        });
     }
 
 

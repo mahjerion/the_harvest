@@ -1,6 +1,7 @@
 package com.robertx22.the_harvest.structure;
 
 import com.robertx22.library_of_exile.components.LibMapCap;
+import com.robertx22.library_of_exile.dimension.MapEntryGrace;
 import com.robertx22.library_of_exile.utils.RandomUtils;
 import com.robertx22.the_harvest.api.HarvestCompletedEvent;
 import com.robertx22.the_harvest.api.HarvestExileEvents;
@@ -92,8 +93,15 @@ public class HarvestMapData {
 
     public void waveLogicSecond(Level world, BlockPos pos) {
 
-        if (HarvestMain.HARVEST_MAP_STRUCTURE.getAllPlayersInMap(world, pos).isEmpty()) {
+        var players = HarvestMain.HARVEST_MAP_STRUCTURE.getAllPlayersInMap(world, pos);
+
+        if (players.isEmpty()) {
             return; // we dont do anything if players arent here
+        }
+        // above tickSecond on purpose: someone whose client is still loading the instance shouldn't be
+        // swarmed the tick they land, and shouldn't lose harvest time to it either
+        if (MapEntryGrace.anyInGrace(players, HarvestMain.MAP.config)) {
+            return;
         }
 
         tickSecond(world, pos);
