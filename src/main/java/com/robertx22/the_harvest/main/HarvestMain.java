@@ -124,6 +124,11 @@ public class HarvestMain {
         });
 
 
+        // the harvest drops you into an arena that then does nothing for the length of the spawn grace.
+        // yellow, so "hasn't started yet" reads as a different state from the green run timer that
+        // replaces it a second later
+        MAP.graceCountdownText = seconds -> HarvestWords.STARTING_IN.get(seconds).withStyle(ChatFormatting.YELLOW);
+
         new MapRegisterBuilder(MAP)
                 .chunkGenerator(new EventConsumer<MapChunkGenEvent>() {
                     @Override

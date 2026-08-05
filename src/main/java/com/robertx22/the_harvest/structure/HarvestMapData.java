@@ -100,6 +100,9 @@ public class HarvestMapData {
         }
         // above tickSecond on purpose: someone whose client is still loading the instance shouldn't be
         // swarmed the tick they land, and shouldn't lose harvest time to it either
+        // the countdown a player sees during this window is sent from the library's player tick
+        // (MapDimensionInfo.graceCountdownText) - this block entity is itself content, so on a fresh
+        // instance it doesn't exist yet and can't announce anything
         if (MapEntryGrace.anyInGrace(players, HarvestMain.MAP.config)) {
             return;
         }

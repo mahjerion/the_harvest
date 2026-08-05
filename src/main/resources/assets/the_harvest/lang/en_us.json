@@ -21,6 +21,7 @@
 	"the_harvest.words.new_map_given": "The Harvest gifts you with a Map. You can use this map to Activate the Harvest.",
 	"the_harvest.words.relic_map": "\u2605 Relic",
 	"the_harvest.words.relic_maps_only": "This Harvest only Accepts Relic Maps",
-	"the_harvest.words.spawn_rate": "Mob Spawn Rate: %1$s%%"
+	"the_harvest.words.spawn_rate": "Mob Spawn Rate: %1$s%%",
+	"the_harvest.words.starting_in": "Starting in %1$ss..."
 
 }

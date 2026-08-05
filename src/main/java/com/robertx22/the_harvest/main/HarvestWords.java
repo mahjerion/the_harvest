@@ -17,6 +17,7 @@ public enum HarvestWords implements ITranslated {
     RELIC_MAP(UNICODE.STAR + " Relic"),
     SPAWN_RATE("Mob Spawn Rate: %1$s%%"),
     HARVEST_TIME_REMAINING("%1$s Seconds Remaining"),
+    STARTING_IN("Starting in %1$ss..."),
     HARVEST_END("The Vines appear to shrink, for now..."),
     RELIC_MAPS_ONLY("This Harvest only Accepts Relic Maps"),
     LAST_WAVE("Last Wave INCOMING!");
