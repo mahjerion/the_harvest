@@ -138,6 +138,9 @@ public class HarvestMain {
                         }
                     }
                 }, id("harvest_chunk_gen"))
+                // lets generation skip instances the counter has never handed out - see
+                // MapDimensionInfo.hasInstanceData
+                .instanceDataSource(level -> HarvestMapCap.get(level).data.data)
                 .build();
 
 
