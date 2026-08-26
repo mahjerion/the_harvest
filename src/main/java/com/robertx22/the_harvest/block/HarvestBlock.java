@@ -82,7 +82,8 @@ public class HarvestBlock extends BaseEntityBlock {
 
         HarvestMapCap.get(p.level()).data.data.setData(p, data, HarvestMain.HARVEST_MAP_STRUCTURE, start.getMiddleBlockPosition(5));
 
-        pdata.mapTeleports.entranceTeleportLogic(p, HarvestMain.DIMENSION_KEY, pos);
+        // the instance is created here, so this is the one entry that gets the spawn grace
+        pdata.mapTeleports.entranceTeleportLogic(p, HarvestMain.DIMENSION_KEY, pos, true);
 
     }
 
@@ -91,7 +92,10 @@ public class HarvestBlock extends BaseEntityBlock {
         var start = HarvestMain.HARVEST_MAP_STRUCTURE.getStartFromCounter(be.x, be.z);
         var pos = TeleportUtils.getSpawnTeleportPos(HarvestMain.HARVEST_MAP_STRUCTURE, start.getMiddleBlockPosition(5));
         var pdata = PlayerDataCapability.get(p);
-        pdata.mapTeleports.entranceTeleportLogic(p, HarvestMain.DIMENSION_KEY, pos);
+        // no grace: this rejoins an instance that is already running, whether that's the owner coming
+        // back or someone joining their run. its mobs already exist, so the grace would protect nobody
+        // and anyInGrace would stall the harvest logic for everyone in it.
+        pdata.mapTeleports.entranceTeleportLogic(p, HarvestMain.DIMENSION_KEY, pos, false);
     }
 
 
