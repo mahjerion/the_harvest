@@ -1,18 +1,15 @@
 package com.robertx22.the_harvest.block;
 
 import com.robertx22.library_of_exile.components.PlayerDataCapability;
-import com.robertx22.library_of_exile.dimension.MapDimensions;
+import com.robertx22.library_of_exile.database.relic.stat.RelicStatsContainer;
+import com.robertx22.library_of_exile.events.base.ExileEvents;
 import com.robertx22.library_of_exile.utils.TeleportUtils;
 import com.robertx22.the_harvest.block_entity.HarvestBE;
 import com.robertx22.the_harvest.item.HarvestItemMapData;
 import com.robertx22.the_harvest.item.HarvestItemNbt;
-import com.robertx22.the_harvest.item.HarvestMapItem;
-import com.robertx22.the_harvest.main.HarvestEntries;
 import com.robertx22.the_harvest.main.HarvestMain;
-import com.robertx22.the_harvest.main.HarvestWords;
 import com.robertx22.the_harvest.structure.HarvestMapCap;
 import com.robertx22.the_harvest.structure.HarvestMapData;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -32,6 +29,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class HarvestBlock extends BaseEntityBlock {
     public HarvestBlock() {
@@ -47,13 +45,24 @@ public class HarvestBlock extends BaseEntityBlock {
 
         if (blockentity instanceof HarvestBE be) {
             all.add(asItem().getDefaultInstance());
+
+            for (int i = 0; i < be.deviceInv.getContainerSize(); i++) {
+                var s = be.deviceInv.getItem(i);
+                if (!s.isEmpty()) {
+                    all.add(s.copy());
+                }
+            }
         }
 
         return all;
     }
 
 
-    public static void startNewMap(Player p, ItemStack stack, HarvestBE be) {
+    /**
+     * @param relics resolved once, right before the instance data is written. The device GUI consumes relic
+     *               uses inside this supplier. May yield null when no relics are slotted.
+     */
+    public static void startNewMap(Player p, ItemStack stack, HarvestBE be, Supplier<RelicStatsContainer> relics) {
 
         HarvestItemMapData map = HarvestItemNbt.HARVEST_MAP.loadFrom(stack);
 
@@ -71,6 +80,15 @@ public class HarvestBlock extends BaseEntityBlock {
         data.x = start.x;
         data.z = start.z;
 
+        // kept on the harvest's own data rather than in LibMapCap: that store is keyed by grid position
+        // with no dimension, so a harvest instance would overwrite the dungeon instance on the same key.
+        // HarvestMain's GRAB_LIB_MAP_DATA listener hands these back to LibMapCap.getData.
+        RelicStatsContainer relicStats = relics == null ? null : relics.get();
+        if (relicStats != null) {
+            data.relicStats = relicStats;
+            data.hasRelics = true;
+        }
+
         be.x = count.x;
         be.z = count.z;
 
@@ -78,7 +96,9 @@ public class HarvestBlock extends BaseEntityBlock {
 
         be.setChanged();
 
+        // the stack is the one in the device's map slot (or the free in-map blank), so this empties the slot
         stack.shrink(1);
+        be.deviceInv.setChanged();
 
         HarvestMapCap.get(p.level()).data.data.setData(p, data, HarvestMain.HARVEST_MAP_STRUCTURE, start.getMiddleBlockPosition(5));
 
@@ -107,49 +127,15 @@ public class HarvestBlock extends BaseEntityBlock {
 
         var be = world.getBlockEntity(pPos);
 
-        var obe = be instanceof HarvestBE ? (HarvestBE) be : null;
-        if (obe == null) {
+        if (!(be instanceof HarvestBE)) {
             HarvestMain.debugMsg(p, "Missing Block entity");
             return InteractionResult.SUCCESS;
         }
 
-        boolean isMapWorld = MapDimensions.isMap(world);
-        ItemStack stack = p.getMainHandItem();
-        if (HarvestItemNbt.HARVEST_MAP.has(stack)) {
-            HarvestItemMapData map = HarvestItemNbt.HARVEST_MAP.loadFrom(stack);
-
-            if (!map.relic && isMapWorld) {
-                p.sendSystemMessage(HarvestWords.RELIC_MAPS_ONLY.get().withStyle(ChatFormatting.RED));
-                return InteractionResult.SUCCESS;
-            }
-
-            //HarvestMain.debugMsg(p, "Trying to start new map");
-            startNewMap(p, stack, obe);
-            //HarvestMain.debugMsg(p, "Map started");
-            return InteractionResult.SUCCESS;
-        }
-
-        if (obe.isActivated()) {
-            joinCurrentMap(p, obe);
-            return InteractionResult.SUCCESS;
-        }
-
-        if (isMapWorld) {
-            initMapSpecificHarvest(p, obe);
-            return InteractionResult.SUCCESS;
-        }
-
+        // slotting the map and relics, starting and joining all go through the shared device GUI, which
+        // the main mod opens for this player
+        ExileEvents.OPEN_MAP_DEVICE.callEvents(new ExileEvents.OpenMapDeviceEvent(p, world, pPos));
         return InteractionResult.SUCCESS;
-    }
-
-    private static void initMapSpecificHarvest(Player p, HarvestBE obe) {
-        if (obe.gaveMap) {
-            return;
-        }
-
-        obe.setGaveMap();
-        var map = HarvestMapItem.blankMap(HarvestEntries.HARVEST_MAP_ITEM.get().getDefaultInstance(), true);
-        startNewMap(p, map, obe);
     }
 
 

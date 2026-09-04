@@ -12,7 +12,7 @@ import java.util.Locale;
 public enum HarvestWords implements ITranslated {
     NEW_MAP_GIVEN("The Harvest gifts you with a Map. You can use this map to Activate the Harvest."),
 
-    MAP_ITEM_USE_INFO("Right Click the [Harvest Block] with the map to start it."),
+    MAP_ITEM_USE_INFO("Right Click the [Harvest Block] and place the map in its slot to start it."),
     CREATIVE_TAB("The Harvest"),
     RELIC_MAP(UNICODE.STAR + " Relic"),
     SPAWN_RATE("Mob Spawn Rate: %1$s%%"),

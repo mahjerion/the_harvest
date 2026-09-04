@@ -1,6 +1,7 @@
 package com.robertx22.the_harvest.structure;
 
 import com.robertx22.library_of_exile.components.LibMapCap;
+import com.robertx22.library_of_exile.database.relic.stat.RelicStatsContainer;
 import com.robertx22.library_of_exile.dimension.MapEntryGrace;
 import com.robertx22.library_of_exile.utils.RandomUtils;
 import com.robertx22.the_harvest.api.HarvestCompletedEvent;
@@ -25,6 +26,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +42,13 @@ public class HarvestMapData {
     public int z = 0;
 
     public Long tileTicker = 0L;
+
+    // relics slotted into the harvest block that started this run. Not stored in LibMapCap (its key has
+    // no dimension component, a harvest instance would clobber a dungeon's); HarvestMain's
+    // GRAB_LIB_MAP_DATA listener serves these to LibMapCap.getData instead. Instances without their own
+    // relics fall through to the connected dungeon's relics.
+    public boolean hasRelics = false;
+    public RelicStatsContainer relicStats = new RelicStatsContainer(new HashMap<>());
 
 
     public void onStartMap(Player p) {

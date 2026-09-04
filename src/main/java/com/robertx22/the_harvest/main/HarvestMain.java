@@ -11,6 +11,7 @@ import com.robertx22.library_of_exile.dimension.MapContentType;
 import com.robertx22.library_of_exile.dimension.MapDimensionInfo;
 import com.robertx22.library_of_exile.dimension.MapDimensions;
 import com.robertx22.library_of_exile.dimension.worlddata.MapStructureCounter;
+import com.robertx22.library_of_exile.components.LibMapData;
 import com.robertx22.library_of_exile.events.base.EventConsumer;
 import com.robertx22.library_of_exile.events.base.ExileEvents;
 import com.robertx22.library_of_exile.main.ApiForgeEvents;
@@ -195,6 +196,25 @@ public class HarvestMain {
 
         HarvestCommands.init();
         HarvestExileEvents.init();
+
+        // relics slotted into a harvest block apply to that harvest's own instance. Runs AFTER
+        // dungeon_realm's listener (callOrder 10 > 0) so a run with its own relics wins, while a harvest
+        // spawned inside a dungeon with none slotted keeps that dungeon's relics.
+        ExileEvents.GRAB_LIB_MAP_DATA.register(new EventConsumer<ExileEvents.GrabLibMapData>() {
+            @Override
+            public int callOrder() {
+                return 10;
+            }
+
+            @Override
+            public void accept(ExileEvents.GrabLibMapData event) {
+                ifMapData(event.level, event.pos).filter(x -> x.hasRelics).ifPresent(x -> {
+                    var data = new LibMapData();
+                    data.relicStats = x.relicStats;
+                    event.data = data;
+                });
+            }
+        });
 
         ExileEvents.ON_CHEST_LOOTED.register(new EventConsumer<ExileEvents.OnChestLooted>() {
             @Override
