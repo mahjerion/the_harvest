@@ -1,3 +1,3 @@
-v.1.1.1
+v.1.1.8
 
-- added dimension wipe on boot
+- fixed relic stuff (harvest implicit now binds to dungeon relics)
